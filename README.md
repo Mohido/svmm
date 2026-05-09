@@ -1,8 +1,14 @@
-# svmm
+<div align="center">
+  <img src="svmm.png" alt="svmm logo" width="180" />
+  <h1>svmm</h1>
+  <p>Simple/small virtual machine manager built on top of libvirt, <code>virt-install</code>, and cloud-init.</p>
+</div>
 
-Simple/small virtual machine manager built on top of libvirt, `virt-install`, and cloud-init.
+---
 
 svmm gives you five focused commands — `create`, `destroy`, `mount`, `unmount`, `ssh` — and delegates everything else (list, start, stop, console, snapshots, …) to `virsh`.
+
+It simplifies downloading images, creating virtual machines, configuring cloud-init, mounting directories and files, and handling SSH. A mini variant of Vagrant.
 
 ## How it works
 
