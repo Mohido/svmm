@@ -61,6 +61,26 @@ git clone https://github.com/youruser/svmm
 pip install ./svmm
 ```
 
+## Shell completion
+
+svmm ships with tab-completion for bash, zsh, and fish via [argcomplete](https://github.com/kislyuk/argcomplete).
+
+Add one line to your shell's config file and reload it:
+
+```bash
+# bash (~/.bashrc)
+eval "$(register-python-argcomplete svmm)"
+
+# zsh (~/.zshrc)
+autoload -U bashcompinit && bashcompinit
+eval "$(register-python-argcomplete svmm)"
+
+# fish (~/.config/fish/config.fish)
+register-python-argcomplete --shell fish svmm | source
+```
+
+Completion covers all subcommands and flags. `--name` completes with your live VM names from `virsh`.
+
 ## Usage
 
 ### create

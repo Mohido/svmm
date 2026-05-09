@@ -1,6 +1,6 @@
 [build-system]
 requires = ["setuptools>=61"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "svmm"
@@ -9,7 +9,7 @@ description = "Simple/small virtual machine manager built on libvirt and cloud-i
 readme = "README.md"
 requires-python = ">=3.10"
 license = { file = "LICENSE" }
-dependencies = ["pyyaml"]
+dependencies = ["pyyaml", "argcomplete>=3.0"]
 
 [project.scripts]
 svmm = "svmm.cli:main"
@@ -17,3 +17,4 @@ svmm = "svmm.cli:main"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["svmm*"]
+

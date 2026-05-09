@@ -39,6 +39,12 @@ except ImportError:
     sys.stderr.write("error: PyYAML required (pip install pyyaml)\n")
     sys.exit(2)
 
+try:
+    import argcomplete  # type: ignore
+    _ARGCOMPLETE = True
+except ImportError:
+    _ARGCOMPLETE = False
+
 
 DEFAULT_BASE_DIR = Path("/var/lib/libvirt/images/svmm")
 LIBVIRT_URI = "qemu:///system"
@@ -596,6 +602,14 @@ def guest_umount(target: tuple[Path, str, str], dst: str) -> bool:
 # CLI
 # ---------------------------------------------------------------------------
 
+def _complete_domains(**_):
+    cp = subprocess.run(
+        ["virsh", "--connect", LIBVIRT_URI, "list", "--all", "--name"],
+        capture_output=True, text=True, check=False,
+    )
+    return [n for n in cp.stdout.splitlines() if n.strip()]
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="svmm", description="simple/small virtual machine manager")
     p.add_argument("--base-dir", type=Path, default=DEFAULT_BASE_DIR,
@@ -618,12 +632,12 @@ def build_parser() -> argparse.ArgumentParser:
     c.set_defaults(func=cmd_create)
 
     d = sub.add_parser("destroy", help="permanently remove a VM and its disk")
-    d.add_argument("-n", "--name", required=True)
+    d.add_argument("-n", "--name", required=True).completer = _complete_domains
     d.add_argument("-y", "--yes", action="store_true")
     d.set_defaults(func=cmd_destroy)
 
     mt = sub.add_parser("mount", help="add virtiofs share(s) to a VM")
-    mt.add_argument("-n", "--name", required=True)
+    mt.add_argument("-n", "--name", required=True).completer = _complete_domains
     mt.add_argument("-m", "--mount", action="append", required=True,
                     help="src:dst (repeatable)")
     mt.add_argument("-H", "--hot", action="store_true",
@@ -635,7 +649,7 @@ def build_parser() -> argparse.ArgumentParser:
     mt.set_defaults(func=cmd_mount)
 
     um = sub.add_parser("unmount", help="remove virtiofs share(s) from a VM")
-    um.add_argument("-n", "--name", required=True)
+    um.add_argument("-n", "--name", required=True).completer = _complete_domains
     um.add_argument("-m", "--mount", action="append", required=True,
                     help="dst path of the mount to remove (repeatable)")
     um.add_argument("-H", "--hot", action="store_true",
@@ -647,7 +661,7 @@ def build_parser() -> argparse.ArgumentParser:
     um.set_defaults(func=cmd_unmount)
 
     s = sub.add_parser("ssh", help="ssh into a running VM")
-    s.add_argument("-n", "--name", required=True)
+    s.add_argument("-n", "--name", required=True).completer = _complete_domains
     s.add_argument("-u", "--user", default="dev")
     s.add_argument("command", nargs=argparse.REMAINDER,
                    help="optional command to run via ssh")
@@ -657,7 +671,10 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Optional[list[str]] = None) -> int:
-    args = build_parser().parse_args(argv)
+    p = build_parser()
+    if _ARGCOMPLETE:
+        argcomplete.autocomplete(p)
+    args = p.parse_args(argv)
     args.base_dir = Path(args.base_dir).expanduser().resolve()
     try:
         args.func(args)
