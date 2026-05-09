@@ -57,7 +57,7 @@ pip install svmm
 Or install directly from source:
 
 ```bash
-git clone https://github.com/youruser/svmm
+git clone https://github.com/Mohido/svmm
 pip install ./svmm
 ```
 
